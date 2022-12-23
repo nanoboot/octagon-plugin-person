@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Octagon Plugin Person: Person plugin for Octagon application.
+ Copyright (C) 2021-2022 the original author or authors.
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; version 2
+ of the License only.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.nanoboot.octagon.plugin.person.persistence.impl.mappers.TodoMapper">
+
+    <resultMap id="todoResultMap" type="org.nanoboot.octagon.plugin.person.classes.Todo">
+        <id property="id" column="ID" typeHandler="org.nanoboot.octagon.entity.typehandlers.UUIDTypeHandler"/>
+        <result property="name" column="NAME"/>
+        <result property="deadline" column="DEADLINE" typeHandler="org.nanoboot.octagon.entity.typehandlers.LocalDateTypeHandler" />
+        <result property="lastReminded" column="LAST_REMINDED" typeHandler="org.nanoboot.octagon.entity.typehandlers.LocalDateTypeHandler" />
+        <result property="reminderType" column="REMINDER_TYPE" typeHandler="org.nanoboot.octagon.plugin.person.persistence.impl.typehandlers.ReminderTypeTypeHandler" />
+        <result property="note" column="NOTE"/>
+        <result property="done" column="DONE" typeHandler="org.nanoboot.octagon.entity.typehandlers.BooleanTypeHandler" />
+    </resultMap>
+
+    <sql id="todoColumns">
+        "ID", "NAME", "DEADLINE", "LAST_REMINDED", "REMINDER_TYPE", "NOTE", "DONE"
+    </sql>
+
+    <insert id="create" parameterType="org.nanoboot.octagon.plugin.person.classes.Todo">
+        INSERT INTO "TODO" (<include refid="todoColumns"/>)
+        VALUES
+        (
+        #{id},
+        #{name},
+        #{deadline,javaType=org.nanoboot.powerframework.time.moment.LocalDate,jdbcType=VARCHAR,typeHandler=org.nanoboot.octagon.entity.typehandlers.LocalDateTypeHandler},
+        #{lastReminded,javaType=org.nanoboot.powerframework.time.moment.LocalDate,jdbcType=VARCHAR,typeHandler=org.nanoboot.octagon.entity.typehandlers.LocalDateTypeHandler},
+        #{reminderType,javaType=org.nanoboot.octagon.plugin.task.ReminderType,jdbcType=VARCHAR,typeHandler=org.nanoboot.octagon.plugin.person.persistence.impl.typehandlers.ReminderTypeTypeHandler},
+        #{note},
+        #{done,javaType=Boolean,jdbcType=INTEGER,typeHandler=org.nanoboot.octagon.entity.typehandlers.BooleanTypeHandler}
+        )
+    </insert>
+
+    <select id="read" parameterType="String" resultMap="todoResultMap">
+        SELECT
+        <include refid="todoColumns"/>
+        FROM "TODO"
+        WHERE "ID" = #{id}
+    </select>
+
+    <update id="update" parameterType="org.nanoboot.octagon.plugin.person.classes.Todo">
+        UPDATE "TODO" SET
+        "NAME" = #{name},
+        "DEADLINE" = #{deadline},
+        "LAST_REMINDED" = #{lastReminded},
+        "REMINDER_TYPE" = #{reminderType},
+        "NOTE" = #{note},
+        "DONE" = #{done}
+
+        WHERE "ID" = #{id}
+    </update>
+
+    <delete id="delete" parameterType="String">
+            DELETE FROM "TODO"
+            WHERE "ID" = #{id}
+    </delete>
+
+    <select id="list" parameterType="String" resultMap="todoResultMap">
+        SELECT
+        <include refid="todoColumns"/>
+        FROM "TODO"
+        WHERE ${value}
+    </select>
+
+
+    <!-- Labels -->
+    <resultMap id="labelResultMap" type="org.nanoboot.octagon.entity.classes.EntityLabel">
+        <id property="id" column="ID"/>
+        <result property="label" column="NAME"/>
+    </resultMap>
+
+    <sql id="labelColumns">
+        "ID", "NAME"
+    </sql>
+
+    <select id="getLabel" parameterType="String" resultType="String">
+        SELECT
+            "NAME"
+        FROM "TODO"
+        WHERE "ID" = #{id}
+    </select>
+    <select id="getLabels" resultMap="labelResultMap">
+        SELECT
+        <include refid="labelColumns"/>
+        FROM "TODO"
+    </select>
+</mapper>

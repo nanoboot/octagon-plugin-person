@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Octagon Plugin Person: Person plugin for Octagon application.
+ Copyright (C) 2021-2022 the original author or authors.
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; version 2
+ of the License only.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.nanoboot.octagon.plugin.person.persistence.impl.mappers.ThingMapper">
+
+    <resultMap id="thingResultMap" type="org.nanoboot.octagon.plugin.person.classes.Thing">
+        <id property="id" column="ID" typeHandler="org.nanoboot.octagon.entity.typehandlers.UUIDTypeHandler"/>
+        <result property="path1" column="PATH1"/>
+        <result property="path2" column="PATH2"/>
+        <result property="path3" column="PATH3"/>
+        <result property="path4" column="PATH4"/>
+        <result property="name" column="NAME"/>
+        <result property="alias" column="ALIAS"/>
+        <result property="since" column="SINCE" typeHandler="org.nanoboot.octagon.entity.typehandlers.LocalDateTypeHandler" />
+        <result property="priceKc" column="PRICE_KC"/>
+        <result property="note" column="NOTE"/>
+    </resultMap>
+
+    <sql id="thingColumns">
+        "ID", "PATH1", "PATH2", "PATH3", "PATH4", "NAME", "ALIAS", "SINCE", "PRICE_KC", "NOTE"
+    </sql>
+
+    <insert id="create" parameterType="org.nanoboot.octagon.plugin.person.classes.Thing">
+        INSERT INTO "THING" (<include refid="thingColumns"/>)
+        VALUES
+        (#{id}, #{path1}, #{path2}, #{path3}, #{path4}, #{name}, #{alias}, #{since,javaType=org.nanoboot.powerframework.time.moment.LocalDate,jdbcType=VARCHAR,typeHandler=org.nanoboot.octagon.entity.typehandlers.LocalDateTypeHandler}, #{priceKc}, #{note})
+    </insert>
+
+    <select id="read" parameterType="String" resultMap="thingResultMap">
+        SELECT
+        <include refid="thingColumns"/>
+        FROM "THING"
+        WHERE "ID" = #{id}
+    </select>
+
+    <update id="update" parameterType="org.nanoboot.octagon.plugin.person.classes.Thing">
+        UPDATE "THING" SET
+        "PATH1" = #{path1},
+        "PATH2" = #{path2},
+        "PATH3" = #{path3},
+        "PATH4" = #{path4},
+        "NAME" = #{name},
+        "ALIAS" = #{alias},
+        "SINCE" = #{since},
+        "PRICE_KC" = #{priceKc},
+        "NOTE" = #{note}
+
+        WHERE "ID" = #{id}
+    </update>
+
+    <delete id="delete" parameterType="String">
+            DELETE FROM "THING"
+            WHERE "ID" = #{id}
+    </delete>
+
+    <select id="list" parameterType="String" resultMap="thingResultMap">
+        SELECT
+        <include refid="thingColumns"/>
+        FROM "THING"
+        WHERE ${value}
+    </select>
+
+    <!-- Labels -->
+    <resultMap id="labelResultMap" type="org.nanoboot.octagon.entity.classes.EntityLabel">
+        <id property="id" column="ID"/>
+        <result property="label" column="NAME"/>
+    </resultMap>
+
+    <sql id="labelColumns">
+        "ID", "NAME"
+    </sql>
+
+    <select id="getLabel" parameterType="String" resultType="String">
+        SELECT
+            "NAME"
+        FROM "THING"
+        WHERE "ID" = #{id}
+    </select>
+    <select id="getLabels" resultMap="labelResultMap">
+        SELECT
+        <include refid="labelColumns"/>
+        FROM "THING"
+    </select>
+
+</mapper>
